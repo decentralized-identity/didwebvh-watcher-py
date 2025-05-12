@@ -8,7 +8,7 @@ class WebVhProcessor:
     def __init__(self):
         self.resolver = DidResolver(HistoryVerifier())
     
-    async def resolve(self, did: str):
+    async def resolve(self, did: str) -> None | dict:
         results = await resolve_did(did)
         return results.document
     

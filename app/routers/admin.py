@@ -54,7 +54,7 @@ async def delete_scid(scid: str, api_key: str = Security(get_api_key)):
     return JSONResponse(status_code=202, content={})
 
 @router.post("/resource/delete")
-async def delete_cached_resource(scid: str, resourcePath: str):
+async def delete_cached_resource(scid: str, resourcePath: str, api_key: str = Security(get_api_key)):
     
     resource_id = f'{scid}{resourcePath}'
     await askar.remove("resource", resource_id)
