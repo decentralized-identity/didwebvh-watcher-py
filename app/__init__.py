@@ -16,10 +16,11 @@ app.add_middleware(
 api_router = APIRouter()
 
 
-@api_router.get("/server/status", tags=["Server"], include_in_schema=False)
+@api_router.get("/status", tags=["Server"], include_in_schema=False)
 async def server_status():
     """Server status endpoint."""
     return JSONResponse(status_code=200, content={"status": "ok"})
+
 
 api_router.include_router(admin.router)
 api_router.include_router(dids.router)

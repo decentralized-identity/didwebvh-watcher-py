@@ -16,7 +16,9 @@ class AskarStorage:
     def __init__(self):
         """Initialize the Askar storage plugin."""
         self.db = settings.ASKAR_DB
-        self.key = Store.generate_raw_key(hashlib.md5(settings.SECRET_KEY.encode()).hexdigest())
+        self.key = Store.generate_raw_key(
+            hashlib.md5(settings.SECRET_KEY.encode()).hexdigest()
+        )
 
     async def provision(self, recreate=False):
         """Provision the Askar storage."""
@@ -37,7 +39,7 @@ class AskarStorage:
             logging.debug(f"Error fetching data {category}: {data_key}", exc_info=True)
             return None
 
-    async def store(self, category: str, data_key: str, data: dict, tags: None | dict = None):
+    async def store(self, category: str, data_key: str, data: dict, tags: dict = {}):
         """Store data in the store."""
         store = await self.open()
         try:
@@ -47,7 +49,7 @@ class AskarStorage:
             logging.debug(f"Error storing data {category}: {data_key}", exc_info=True)
             raise HTTPException(status_code=404, detail="Couldn't store record.")
 
-    async def update(self, category: str, data_key: str, data: dict, tags: None | dict = None):
+    async def update(self, category: str, data_key: str, data: dict, tags: dict = {}):
         """Update data in the store."""
         store = await self.open()
         try:

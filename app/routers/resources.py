@@ -1,6 +1,6 @@
-"""WebVH Log endpoints."""
+"""WebVH Resource endpoints."""
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Response
 from fastapi.responses import JSONResponse
 from app.models.records import DidResourceRecord
 
@@ -10,28 +10,44 @@ router = APIRouter(tags=["Resources"])
 askar = AskarStorage()
 webvh = WebVhProcessor()
 
+
 @router.get("/resource")
 async def return_cached_resource(scid: str, resourcePath: str):
-    """Get known witnesses registry."""
-    
-    resource_id = f'{scid}{resourcePath}'
+    """Get cached resource."""
+
+    resource_id = f"{scid}{resourcePath}"
     resource = await askar.fetch("resourceRecord", resource_id)
 
     if not resource:
         raise HTTPException(status_code=404, detail="Unknown resource.")
 
-    return JSONResponse(status_code=200, content=resource.get('resourceData'))
+    return Response(
+        resource.get("resource_data"), media_type=resource.get("media_type")
+    )
+
 
 @router.post("/resource")
 async def add_cached_resource(did: str, resourcePath: str):
-    scid = did.split(':')[2]
-    resource_id = f'{scid}{resourcePath}'
-    resource = webvh.get_resource(did, resourcePath)
-    if resource:
+    """Add/Update cached resource."""
+    scid = did.split(":")[2]
+    resource_id = f"{scid}{resourcePath}"
+    resource_data, media_type = webvh.get_resource(did, resourcePath)
+    if resource_data:
         resource_record = DidResourceRecord(
             scid=scid,
-            resourcePath=resourcePath,
-            resourceData=resource
+            media_type=media_type,
+            resource_path=resourcePath,
+            resource_data=resource_data,
         ).model_dump()
-        await askar.store('resourceRecord', resource_id, resource_record)
+
+        if not await askar.fetch("resourceRecord", resource_id):
+            await askar.store(
+                "resourceRecord", resource_id, resource_record, {"scid": scid}
+            )
+
+        else:
+            await askar.update(
+                "resourceRecord", resource_id, resource_record, {"scid": scid}
+            )
+
     return JSONResponse(status_code=202, content={})

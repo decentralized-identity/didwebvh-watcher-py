@@ -9,7 +9,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     """App settings."""
-    model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
+
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
     PROJECT_TITLE: str = "DID WebVH Watcher"
     PROJECT_VERSION: str = "v0"
@@ -22,8 +23,15 @@ class Settings(BaseSettings):
     POSTGRES_SERVER_PORT: Union[str, None] = os.getenv("POSTGRES_SERVER_PORT")
 
     ASKAR_DB: str = "sqlite://app.db"
-    if POSTGRES_USER and POSTGRES_PASSWORD and POSTGRES_SERVER_NAME and POSTGRES_SERVER_PORT:
-        logging.info(f"Using postgres storage: {POSTGRES_SERVER_NAME}:{POSTGRES_SERVER_PORT}")
+    if (
+        POSTGRES_USER
+        and POSTGRES_PASSWORD
+        and POSTGRES_SERVER_NAME
+        and POSTGRES_SERVER_PORT
+    ):
+        logging.info(
+            f"Using postgres storage: {POSTGRES_SERVER_NAME}:{POSTGRES_SERVER_PORT}"
+        )
         ASKAR_DB: str = f"postgres://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER_NAME}:{POSTGRES_SERVER_PORT}/didwebvh-server"
     else:
         logging.info("Using SQLite database")
